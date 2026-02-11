@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickLink | Professional URL Shortener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #25D366;
+            --secondary: #128C7E;
+        }
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .btn-whatsapp {
+            background-color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        .btn-whatsapp:hover {
+            background-color: var(--secondary);
+            transform: translateY(-2px);
+        }
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+    <div class="glass-card w-full max-w-md p-8">
+        <div class="text-center mb-8">
+            <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-link text-2xl text-green-600"></i>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-800">Welcome Back!</h1>
+            <p class="text-gray-500 mt-2" id="status-msg">Please enter your details to continue</p>
+        </div>
+
+        <form id="referralForm" class="space-y-5">
+            <!-- Hidden field for the 6-digit code -->
+            <input type="hidden" id="referralCode" name="referralCode">
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                        <i class="fas fa-user"></i>
+                    </span>
+                    <input type="text" id="name" required 
+                        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                        placeholder="John Doe">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                        <i class="fas fa-phone"></i>
+                    </span>
+                    <input type="tel" id="phone" required 
+                        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
+                        placeholder="+1 234 567 890">
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-lg border border-dashed border-gray-300 text-center">
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Referral Code Detected</span>
+                <div id="displayCode" class="text-xl font-mono font-bold text-green-600 mt-1">------</div>
+            </div>
+
+            <button type="submit" id="submitBtn"
+                class="w-full btn-whatsapp text-white font-bold py-4 rounded-lg flex items-center justify-center gap-3 shadow-lg">
+                <span>Continue to WhatsApp</span>
+                <i class="fab fa-whatsapp text-xl"></i>
+                <div id="loader" class="loader"></div>
+            </button>
+        </form>
+
+        <div id="successToast" class="hidden mt-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg text-center">
+            <i class="fas fa-check-circle mr-2"></i> Data saved and redirecting...
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURATION: Replace with your Google Apps Script Web App URL
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzj1RuKOLYmtVXm-dJ1twlUcwLlqumeDdUScXoKfUnmO6hMhWPKcJ0sqg4sY4xscpvbsg/exec";
+        const WHATSAPP_NUMBER = "8368580827"; // Your business number
+
+        // 1. Detect Referral Code from URL
+        function getReferralCode() {
+            const params = new URLSearchParams(window.location.search);
+            // Looks for ?ref=123456 or simply the first 6-digit parameter
+            let code = params.get('ref') || params.get('code');
+            
+            // Logic to handle direct paths if needed (e.g., domain.com/123456)
+            if (!code) {
+                const pathParts = window.location.pathname.split('/');
+                const lastPart = pathParts[pathParts.length - 1];
+                if (/^\d{6}$/.test(lastPart)) code = lastPart;
+            }
+
+            return code || "N/A";
+        }
+
+        // Initialize Page Data
+        const code = getReferralCode();
+        document.getElementById('referralCode').value = code;
+        document.getElementById('displayCode').innerText = code;
+
+        // 2. Form Submission Handler
+        document.getElementById('referralForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loader = document.getElementById('loader');
+            const successToast = document.getElementById('successToast');
+
+            const formData = {
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                referralCode: document.getElementById('referralCode').value,
+                timestamp: new Date().toLocaleString()
+            };
+
+            // UI Loading State
+            submitBtn.disabled = true;
+            loader.style.display = 'block';
+
+            try {
+                // A. Send to Google Sheets via Apps Script
+                // Using 'no-cors' mode as Apps Script often redirects
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                // B. Prepare WhatsApp Message
+                const message = `Hello! New Lead Details:\n\n` +
+                                `*Name:* ${formData.name}\n` +
+                                `*Phone:* ${formData.phone}\n` +
+                                `*Referral:* ${formData.referralCode}\n` +
+                                `*Time:* ${formData.timestamp}`;
+                
+                const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+
+                // Show Success
+                successToast.classList.remove('hidden');
+
+                // C. Redirect to WhatsApp after a brief delay
+                setTimeout(() => {
+                    window.location.href = waUrl;
+                }, 1500);
+
+            } catch (error) {
+                console.error("Error saving data:", error);
+                alert("Something went wrong, but you can still contact us via WhatsApp.");
+                submitBtn.disabled = false;
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
