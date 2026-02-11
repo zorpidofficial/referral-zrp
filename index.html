@@ -3,182 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickLink | Professional URL Shortener</title>
+    <title>Zorpido | Registration</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #25D366;
-            --secondary: #128C7E;
-        }
         body {
+            font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        }
-        .btn-whatsapp {
-            background-color: var(--primary);
-            transition: all 0.3s ease;
-        }
-        .btn-whatsapp:hover {
-            background-color: var(--secondary);
-            transform: translateY(-2px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
         }
         .loader {
             border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--secondary);
             border-radius: 50%;
+            border-top: 3px solid #3b82f6;
             width: 20px;
             height: 20px;
             animation: spin 1s linear infinite;
-            display: none;
+            display: inline-block;
+            vertical-align: middle;
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden { display: none; }
     </style>
 </head>
 <body class="flex items-center justify-center p-4">
 
-    <div class="glass-card w-full max-w-md p-8">
+    <div class="w-full max-w-md p-8 rounded-2xl glass-card">
         <div class="text-center mb-8">
-            <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-link text-2xl text-green-600"></i>
-            </div>
-            <h1 class="text-2xl font-bold text-gray-800">Welcome Back!</h1>
-            <p class="text-gray-500 mt-2" id="status-msg">Please enter your details to continue</p>
+            <h1 class="text-3xl font-bold text-gray-800">Zorpido</h1>
+            <p class="text-gray-500 mt-2">Complete the form to proceed</p>
         </div>
 
-        <form id="referralForm" class="space-y-5">
-            <!-- Hidden field for the 6-digit code -->
-            <input type="hidden" id="referralCode" name="referralCode">
+        <form id="shortenerForm" class="space-y-5">
+            <!-- Referral Code (Auto-populated from URL) -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Referral Code</label>
+                <input 
+                    type="text" 
+                    id="refCode" 
+                    name="referralCode" 
+                    readonly 
+                    class="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-600 focus:outline-none"
+                    placeholder="No code detected"
+                >
+            </div>
 
+            <!-- Name Input -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                        <i class="fas fa-user"></i>
-                    </span>
-                    <input type="text" id="name" required 
-                        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
-                        placeholder="John Doe">
-                </div>
+                <input 
+                    type="text" 
+                    id="userName" 
+                    name="name" 
+                    required 
+                    placeholder="Enter your name"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
             </div>
 
+            <!-- Phone Input -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                        <i class="fas fa-phone"></i>
-                    </span>
-                    <input type="tel" id="phone" required 
-                        class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all"
-                        placeholder="+1 234 567 890">
-                </div>
+                <input 
+                    type="tel" 
+                    id="userPhone" 
+                    name="phone" 
+                    required 
+                    pattern="[0-9]{10}"
+                    placeholder="10-digit mobile number"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
             </div>
 
-            <div class="bg-gray-50 p-4 rounded-lg border border-dashed border-gray-300 text-center">
-                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Referral Code Detected</span>
-                <div id="displayCode" class="text-xl font-mono font-bold text-green-600 mt-1">------</div>
-            </div>
+            <!-- Hidden Timestamp -->
+            <input type="hidden" id="timestamp" name="timestamp">
 
-            <button type="submit" id="submitBtn"
-                class="w-full btn-whatsapp text-white font-bold py-4 rounded-lg flex items-center justify-center gap-3 shadow-lg">
-                <span>Continue to WhatsApp</span>
-                <i class="fab fa-whatsapp text-xl"></i>
-                <div id="loader" class="loader"></div>
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                id="submitBtn"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors shadow-lg flex items-center justify-center gap-2"
+            >
+                <span>Submit & Open WhatsApp</span>
+                <div id="btnLoader" class="loader hidden"></div>
             </button>
         </form>
 
-        <div id="successToast" class="hidden mt-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg text-center">
-            <i class="fas fa-check-circle mr-2"></i> Data saved and redirecting...
+        <div id="statusMessage" class="mt-4 text-center text-sm font-medium hidden"></div>
+
+        <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+            <p class="text-xs text-gray-400">© 2026 Zorpido Official. All rights reserved.</p>
         </div>
     </div>
 
     <script>
-        // CONFIGURATION: Replace with your Google Apps Script Web App URL
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzj1RuKOLYmtVXm-dJ1twlUcwLlqumeDdUScXoKfUnmO6hMhWPKcJ0sqg4sY4xscpvbsg/exec";
-        const WHATSAPP_NUMBER = "8368580827"; // Your business number
+        /**
+         * CONFIGURATION
+         * Replace with your actual Google Apps Script Web App URL
+         */
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_ZuTkqFQblRv7kmIej6hWYG1TR77Xvz1bMuQYsVA-q5YQg3_m3fYcLGxgRJNjIMkYrg/exec";
+        const WHATSAPP_NUMBER = "918368580827"; // Include country code without +
 
-        // 1. Detect Referral Code from URL
-        function getReferralCode() {
-            const params = new URLSearchParams(window.location.search);
-            // Looks for ?ref=123456 or simply the first 6-digit parameter
-            let code = params.get('ref') || params.get('code');
+        // 1. URL Parsing Logic
+        function handleUrlRouting() {
+            const path = window.location.pathname;
+            const refInput = document.getElementById('refCode');
             
-            // Logic to handle direct paths if needed (e.g., domain.com/123456)
-            if (!code) {
-                const pathParts = window.location.pathname.split('/');
-                const lastPart = pathParts[pathParts.length - 1];
-                if (/^\d{6}$/.test(lastPart)) code = lastPart;
+            // Extract code from /d/{code}
+            const match = path.match(/\/d\/([a-zA-Z0-9]{6})/);
+            if (match && match[1]) {
+                refInput.value = match[1];
+            } else {
+                // Check query params as fallback
+                const urlParams = new URLSearchParams(window.location.search);
+                const code = urlParams.get('code');
+                if (code) refInput.value = code;
             }
-
-            return code || "N/A";
         }
 
-        // Initialize Page Data
-        const code = getReferralCode();
-        document.getElementById('referralCode').value = code;
-        document.getElementById('displayCode').innerText = code;
+        // 2. Form Submission Logic
+        const form = document.getElementById('shortenerForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loader = document.getElementById('btnLoader');
+        const statusMsg = document.getElementById('statusMessage');
 
-        // 2. Form Submission Handler
-        document.getElementById('referralForm').addEventListener('submit', async (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const submitBtn = document.getElementById('submitBtn');
-            const loader = document.getElementById('loader');
-            const successToast = document.getElementById('successToast');
+            // UI State: Loading
+            submitBtn.disabled = true;
+            loader.classList.remove('hidden');
+            statusMsg.classList.add('hidden');
+
+            const name = document.getElementById('userName').value;
+            const phone = document.getElementById('userPhone').value;
+            const code = document.getElementById('refCode').value || "DIRECT";
+            const timestamp = new Date().toLocaleString();
 
             const formData = {
-                name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value,
-                referralCode: document.getElementById('referralCode').value,
-                timestamp: new Date().toLocaleString()
+                name,
+                phone,
+                referralCode: code,
+                timestamp
             };
 
-            // UI Loading State
-            submitBtn.disabled = true;
-            loader.style.display = 'block';
-
             try {
-                // A. Send to Google Sheets via Apps Script
-                // Using 'no-cors' mode as Apps Script often redirects
-                await fetch(APPS_SCRIPT_URL, {
+                // Send to Google Sheets (Apps Script)
+                // Note: Using no-cors if Script doesn't handle CORS, 
+                // but standard Script Web Apps usually require redirect handling.
+                const response = await fetch(SCRIPT_URL, {
                     method: 'POST',
-                    mode: 'no-cors',
-                    cache: 'no-cache',
+                    mode: 'no-cors', // Common for Apps Script
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 });
 
-                // B. Prepare WhatsApp Message
-                const message = `Hello! New Lead Details:\n\n` +
-                                `*Name:* ${formData.name}\n` +
-                                `*Phone:* ${formData.phone}\n` +
-                                `*Referral:* ${formData.referralCode}\n` +
-                                `*Time:* ${formData.timestamp}`;
-                
-                const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+                // Show success UI
+                statusMsg.textContent = "✓ Data saved successfully!";
+                statusMsg.className = "mt-4 text-center text-sm font-medium text-green-600";
+                statusMsg.classList.remove('hidden');
 
-                // Show Success
-                successToast.classList.remove('hidden');
+                // Generate WhatsApp Link
+                const waMessage = `Hello Zorpido!%0A%0A*New Registration*%0A*Name:* ${name}%0A*Phone:* ${phone}%0A*Referral:* ${code}%0A*Time:* ${timestamp}`;
+                const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}`;
 
-                // C. Redirect to WhatsApp after a brief delay
+                // Redirect to WhatsApp after a brief delay
                 setTimeout(() => {
                     window.location.href = waUrl;
-                }, 1500);
+                }, 1000);
 
             } catch (error) {
-                console.error("Error saving data:", error);
-                alert("Something went wrong, but you can still contact us via WhatsApp.");
+                console.error("Submission error:", error);
+                statusMsg.textContent = "Submission failed. Please try again.";
+                statusMsg.className = "mt-4 text-center text-sm font-medium text-red-600";
+                statusMsg.classList.remove('hidden');
                 submitBtn.disabled = false;
-                loader.style.display = 'none';
+                loader.classList.add('hidden');
             }
         });
+
+        // Initialize on Load
+        window.onload = handleUrlRouting;
     </script>
 </body>
 </html>
